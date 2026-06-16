@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<map version="1.10" tiledversion="1.12.2" orientation="isometric" renderorder="right-down" width="30" height="20" tilewidth="32" tileheight="16" infinite="1" nextlayerid="7" nextobjectid="1">
+ <tileset firstgid="1" source="../../../Aseprite/OU/world.tsx"/>
+ <tileset firstgid="6" source="../../../Aseprite/OU/collision_tiles.tsx"/>
+ <layer id="1" name="Tile Layer 1" width="30" height="20">
+  <data encoding="base64" compression="zlib">
+   <chunk x="0" y="0" width="16" height="16">
+   eJxjYBgFwwEwkoFH9Q8f/eQCAIYAAGk=
+  </chunk>
+  </data>
+ </layer>
+ <layer id="4" name="Collision_1" width="30" height="20" visible="0" locked="1">
+  <data encoding="base64" compression="zlib">
+   <chunk x="0" y="0" width="16" height="16">
+   eJxjYBgFAw3YyMCDTT8HELMjYU466x9o/1OifyABAM7dAoE=
+  </chunk>
+  </data>
+ </layer>
+ <layer id="2" name="Tile Layer 2" width="30" height="20">
+  <data encoding="base64" compression="zlib">
+   <chunk x="0" y="0" width="16" height="16">
+   eJxjYBgFo4A6gBEJM5Ool4lC/TDAQqa+kQoAHkAAEw==
+  </chunk>
+  </data>
+ </layer>
+ <layer id="5" name="Collision_2" width="30" height="20" visible="0">
+  <data encoding="base64" compression="zlib">
+   <chunk x="0" y="0" width="16" height="16">
+   eJxjYBgFo4CBgQOI2YGYk0z9bEh4FAwdAABRhAAr
+  </chunk>
+  </data>
+ </layer>
+ <layer id="3" name="Tile Layer 3" width="30" height="20">
+  <data encoding="base64" compression="zlib">
+   <chunk x="0" y="0" width="16" height="16">
+   eJxjYBgFo4CBgQmIGYGYmQIzWKjkllFAPwAAFoQACw==
+  </chunk>
+  </data>
+ </layer>
+ <layer id="6" name="Collision_3" width="30" height="20" visible="0">
+  <data encoding="base64" compression="zlib">
+   <chunk x="0" y="0" width="16" height="16">
+   eJxjYBgFwwGwDbQDRsGQBAARUAAH
+  </chunk>
+  </data>
+ </layer>
+</map>

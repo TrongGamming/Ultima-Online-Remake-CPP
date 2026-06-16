@@ -1,0 +1,86 @@
+# IDE
+.vscode/
+
+# clangd
+.clangd
+.cache/
+.clangd/
+
+# Build directories
+build/
+cmake-build-*/
+out/
+bin/
+
+# CMake generated files
+CMakeCache.txt
+CMakeFiles/
+cmake_install.cmake
+install_manifest.txt
+compile_commands.json
+CTestTestfile.cmake
+Makefile
+
+# Ninja
+.ninja_deps
+.ninja_log
+build.ninja
+
+# Build logs / reports
+build_output.txt
+compile_error.txt
+ninja_output.txt
+map_analysis.txt
+
+# Generated outputs
+*.o
+*.obj
+*.so
+*.dll
+*.dylib
+*.a
+*.lib
+*.exe
+*.out
+*.apk
+*.aar
+
+# Temporary files
+*.tmp
+*.log
+*.cache
+*.swp
+*.swo
+*~
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Generated reports
+repomix-output.xml
+
+# Gradle & Android Build
+.gradle/
+local.properties
+**/build/
+**/.cxx/
+
+# JetBrains IDEs (Android Studio / CLion)
+.idea/
+*.iml
+
+# Visual Studio & Windows IDEs
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+ipch/
+*.sdf
+*.opensdf
+*.VC.db
+*.VC.opendb
+
+# Graphic & Design tools
+*.psd
+*.tiled-session
