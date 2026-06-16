@@ -1,86 +1,236 @@
 # Ultima Online Remake (OUGame) - C++20 & SDL3 Multiplayer Game Engine
 
-Dự án này là một phiên bản làm lại (remake) của tựa game huyền thoại **Ultima Online**, được xây dựng từ đầu bằng ngôn ngữ **C++20** và thư viện **SDL3** (Simple DirectMedia Layer phiên bản 3 mới nhất). Dự án thể hiện khả năng thiết kế kiến trúc game engine, lập trình hệ thống, tối ưu hóa hiệu năng, xử lý mạng (multiplayer) và phát triển đa nền tảng (PC & Android) của nhà phát triển.
+![C++](https://img.shields.io/badge/c++-%2300599C.svg?style=for-the-badge&logo=c%2B%2B&logoColor=white)
+![CMake](https://img.shields.io/badge/CMake-%23008FBA.svg?style=for-the-badge&logo=cmake&logoColor=white)
+![SDL3](https://img.shields.io/badge/SDL-3.2.0-blue?style=for-the-badge)
+![Android NDK](https://img.shields.io/badge/Android%20NDK-Support-green?style=for-the-badge&logo=android)
+
+Dự án này là một phiên bản làm lại (remake) của tựa game huyền thoại **Ultima Online**, được xây dựng từ đầu bằng ngôn ngữ **C++20** và thư viện đồ họa **SDL3** mới nhất. Dự án thể hiện khả năng thiết kế kiến trúc game engine, lập trình hệ thống tối ưu hiệu năng, xử lý mạng multiplayer đồng bộ và phát triển đa nền tảng (PC & Android).
 
 ---
 
-## 🌟 Tính Năng Nổi Bật (Key Features)
+<details>
+<summary>🇬🇧 Click to view English Version</summary>
 
-*   **Kiến trúc Client - Server Độc Lập**: 
-    *   **Server**: Nhận kết nối từ nhiều Client, xử lý logic thế giới, AI tuần tra của quái NPC, đồng bộ hóa trạng thái thực thể thông qua giao thức TCP (sử dụng thư viện mạng `SDL3_net`).
-    *   **Client**: Nhận input từ người chơi, hiển thị đồ họa 2D qua Camera, thực hiện nội suy (interpolation) và tương tác với thế giới thực tế thông qua socket mạng.
-*   **Hệ thống ECS (Entity Component System) tự thiết kế**: Hệ thống quản lý thực thể (Entities), thành phần dữ liệu (Components), và các bộ xử lý logic (Systems) hiệu năng cao, giúp tách biệt dữ liệu và logic, dễ dàng bảo trì và mở rộng tính năng mới.
-*   **Quản lý Tài Nguyên (Asset Management)**: Thiết kế mẫu `AssetManager` và `TextureManager` quản lý vòng đời của hình ảnh (Texture), font chữ (TTF), giúp tránh rò rỉ bộ nhớ (memory leaks) bằng cách tận dụng con trỏ thông minh (`std::unique_ptr`, `std::shared_ptr`) và cơ chế RAII.
-*   **Tiled Map Engine**: Sử dụng thư viện `tinyxml2` để phân tích (parse) và render bản đồ lưới 2D từ các tệp cấu hình XML/TMX.
-*   **FPS Limiter & Game Loop**: Triển khai Game Loop chuẩn công nghiệp với bộ giới hạn khung hình (FPS Limiter) giúp duy trì hiệu năng ổn định ở mức 60 FPS mà không làm quá tải CPU.
-*   **Hỗ trợ Đa Nền tảng (Cross-platform)**: Hỗ trợ biên dịch và chạy trên PC (Windows, Linux, macOS) và đóng gói sang ứng dụng Android (APK) thông qua Android NDK tích hợp sẵn.
+# Ultima Online Remake (OUGame) - C++20 & SDL3 Multiplayer Game Engine
+
+OUGame is a multiplayer game engine remake of the classic Ultima Online, built from scratch using C++20 and the latest SDL3 (Simple DirectMedia Layer v3). This project showcases system programming capabilities, memory optimization, custom engine architecture (ECS), non-blocking networking, and cross-platform deployment.
+
+</details>
+
+---
+
+## 📐 Kiến Trúc Hệ Thống (System Architecture)
+
+Dưới đây là sơ đồ tương tác giữa các luồng xử lý và dữ liệu của Client và Server:
+
+```mermaid
+graph TD
+    subgraph Game Server
+        ServerNet[SDL3_net Server Socket] -->|Receive Packets| PacketParserS[Packet Parser]
+        PacketParserS -->|Game Events| PhysicsEngine[Physics & Movement]
+        PhysicsEngine -->|Update NPC AI| AISystem[AI & Patrol System]
+        AISystem -->|State Sync| StateManagerS[State Manager]
+        StateManagerS -->|Broadcast state| ServerNet
+    end
+
+    subgraph Game Client
+        ClientNet[SDL3_net Client Socket] -->|Receive Updates| StateManagerC[State Manager]
+        StateManagerC -->|Update Entities| CustomECS[Custom ECS Engine]
+        InputHandler[SDL3 Event / Input] -->|Send Command| ClientNet
+        CustomECS -->|Render Frame| CameraSystem[Camera & Render System]
+        CameraSystem -->|Draw Graphics| SDL3Renderer[SDL3 Renderer]
+    end
+
+    XMLConfigs[(XML/TMX Map Configs)] -.->|Parsed by tinyxml2| CustomECS
+```
+
+---
+
+<details>
+<summary>🇬🇧 Click to view English Version</summary>
+
+## 📐 System Architecture
+
+Below is the interaction flowchart representing the Client-Server execution loop and network synchronization:
+
+[The Mermaid diagram is displayed above]
+
+</details>
+
+---
+
+## 🚀 Các Tính Năng Nổi Bật (Key Features)
+
+*   **Kiến trúc Client - Server Độc Lập**:
+    *   **Server**: Lắng nghe kết nối TCP thông qua `SDL3_net`, duy trì trạng thái thế giới ảo, quản lý quái vật NPC tuần tra và phát đồng bộ trạng thái thực thể tới các client.
+    *   **Client**: Tiếp nhận điều khiển từ người chơi, hiển thị đồ họa 2D camera di động và thực hiện nội suy tọa độ giảm thiểu giật lag mạng.
+*   **Hệ thống ECS (Entity Component System) tự phát triển**: Quản lý hiệu quả hàng ngàn thực thể (Entities), dữ liệu thành phần (Components) và các hệ thống xử lý logic (Systems), tối ưu hóa CPU Cache Hit.
+*   **Quản Lý Tài Nguyên An Toàn**: Thiết kế các lớp `AssetManager` và `TextureManager` tuân thủ nguyên tắc RAII, quản lý vòng đời tài nguyên (Textures, Font TTF) bằng Smart Pointers (`std::unique_ptr`, `std::shared_ptr`), triệt tiêu hoàn toàn lỗi rò rỉ bộ nhớ (Memory Leaks).
+*   **Tiled Map Engine**: Tận dụng thư viện `tinyxml2` để phân tích cấu trúc bản đồ dạng lưới 2D từ các tệp cấu hình XML/TMX và render hiệu quả.
+*   **Game Loop & FPS Limiter**: Vòng lặp game chuẩn công nghiệp tích hợp bộ giới hạn FPS giúp game chạy mượt mà ổn định ở 60 FPS mà không làm quá tải CPU.
+*   **Hỗ trợ Đa Nền tảng**: Hỗ trợ PC (Windows, Linux, macOS) và biên dịch đóng gói trực tiếp cho Android (APK) thông qua Android NDK.
+
+---
+
+<details>
+<summary>🇬🇧 Click to view English Version</summary>
+
+## 🚀 Key Features
+
+*   **Decoupled Client-Server Architecture**:
+    *   **Server**: Listens for incoming TCP connections via `SDL3_net`, manages world simulations, handles NPC AI patrol logic, and broadcasts entity states to connected clients.
+    *   **Client**: Captures player input, renders 2D graphics tracking player movement, and performs coordinate interpolation to resolve network jitter.
+*   **Custom Entity Component System (ECS)**: A high-performance custom-built ECS separating entities, data components, and logic systems, maximizing CPU cache locality.
+*   **RAII Asset Management**: `AssetManager` and `TextureManager` manage textures and TTF fonts utilizing smart pointers (`std::unique_ptr`, `std::shared_ptr`) to eliminate memory leaks and double-free issues.
+*   **Tiled Map Engine**: Parse grid maps from XML/TMX config files dynamically using `tinyxml2`.
+*   **FPS Limiter & Game Loop**: Industry-standard game loop limiting frames to 60 FPS to maintain peak rendering performance while minimizing CPU overhead.
+*   **Cross-platform Support**: Native builds for Windows, Linux, macOS, and Android builds (APK packaging via Android NDK integrations).
+
+</details>
+
+---
+
+## 📁 Cấu Trúc Thư Mục (Folder Structure)
+
+```text
+src/
+├── Common/            # Chứa WorldConfig, gói tin mạng dùng chung cho Client/Server
+├── ECS/               # Hệ thống ECS tự phát triển (ECS.hpp) và các component nhân vật
+├── Core/              # Core logic Game Client, AssetManager, Camera di chuyển
+├── World/             # Quản lý bản đồ game, tải dữ liệu map từ XML qua tinyxml2
+├── Server/            # Core logic Game Server xử lý Socket, AI quái vật, đồng bộ
+└── main.cpp           # Điểm khởi chạy của Game Client
+```
+
+---
+
+<details>
+<summary>🇬🇧 Click to view English Version</summary>
+
+## 📁 Folder Structure
+
+```text
+src/
+├── Common/            # Shared config (WorldConfig), packet definitions
+├── ECS/               # Custom ECS core (ECS.hpp) and standard component types
+├── Core/              # Client runtime core, camera positioning, asset loading
+├── World/             # Map engine parsing and grid tiles visualization
+├── Server/            # Server executable entry, non-blocking socket loops, NPC AI
+└── main.cpp           # Game Client main entrypoint
+```
+
+</details>
 
 ---
 
 ## 🛠️ Công Nghệ & Thư Viện Sử Dụng (Tech Stack)
 
-*   **Ngôn ngữ**: C++20 (sử dụng các tính năng hiện đại như Smart Pointers, STL nâng cao, constexpr...).
-*   **Build System**: CMake (>= 3.22) với cơ chế `FetchContent` giúp tự động tải và biên dịch các thư viện dependency mà không cần cài đặt thủ công.
-*   **Đồ họa & Sự kiện**: [SDL3 (Simple DirectMedia Layer v3.2.0)](https://github.com/libsdl-org/SDL).
-*   **Xử lý UI & Font**: [SDL3_ttf](https://github.com/libsdl-org/SDL_ttf) & [SDL3_image](https://github.com/libsdl-org/SDL_image).
-*   **Hệ thống Mạng**: [SDL3_net](https://github.com/libsdl-org/SDL_net) (hỗ trợ TCP/UDP socket phi chặn).
-*   **Parser XML**: [tinyxml2](https://github.com/leethomason/tinyxml2) để đọc cấu hình map.
-*   **Hệ điều hành mục tiêu**: Windows, Linux, macOS, Android.
+*   **Ngôn ngữ**: C++20 (Smart pointers, STL, constexpr)
+*   **Build System**: CMake (>= 3.22) sử dụng `FetchContent` để tự động tải các dependencies
+*   **Thư viện đồ họa**: SDL3 (Simple DirectMedia Layer v3.2.0)
+*   **UI & Fonts**: SDL3_ttf & SDL3_image
+*   **Mạng**: SDL3_net (TCP Sockets phi chặn)
+*   **XML Parser**: tinyxml2
+*   **Hệ điều hành mục tiêu**: Windows, Linux, macOS, Android
 
 ---
 
-## 📂 Cấu Trúc Dự Án (Project Structure)
+<details>
+<summary>🇬🇧 Click to view English Version</summary>
 
-Dự án được cấu trúc rõ ràng theo chuẩn mô hình Client-Server và ECS:
+## 🛠️ Tech Stack
 
-*   [CMakeLists.txt](file:///d:/WorkSpace/Game/OU/CMakeLists.txt): Tệp cấu hình CMake chính điều phối việc fetch các thư viện dependencies, định nghĩa thư viện dùng chung `OUCommon` và phân chia 2 build target: `OUGameClient` và `OUGameServer`.
-*   [src/](file:///d:/WorkSpace/Game/OU/src): Thư mục chứa toàn bộ mã nguồn của dự án:
-    *   [src/Common/](file:///d:/WorkSpace/Game/OU/src/Common): Chứa cấu hình thế giới (`WorldConfig`), mã hóa gói tin và các tiện ích dùng chung cho cả Client và Server.
-    *   [src/ECS/](file:///d:/WorkSpace/Game/OU/src/ECS): Hệ thống Entity Component System tự xây dựng ([ECS.hpp](file:///d:/WorkSpace/Game/OU/src/ECS/ECS.hpp)) và các Components định nghĩa thuộc tính nhân vật, đồ họa, vị trí, mạng lưới.
-    *   [src/Core/](file:///d:/WorkSpace/Game/OU/src/Core): Lõi của Game Client ([Game.cpp](file:///d:/WorkSpace/Game/OU/src/Core/Game.cpp), [Game.hpp](file:///d:/WorkSpace/Game/OU/src/Core/Game.hpp)), quản lý tài nguyên ([AssetManager](file:///d:/WorkSpace/Game/OU/src/Core/AssetManager.cpp)), Camera di chuyển theo người chơi.
-    *   [src/World/](file:///d:/WorkSpace/Game/OU/src/World): Quản lý cơ sở dữ liệu bản đồ ([Map.cpp](file:///d:/WorkSpace/Game/OU/src/World/Map.cpp)) tải từ XML.
-    *   [src/Server/](file:///d:/WorkSpace/Game/OU/src/Server): Mã nguồn cho Game Server ([main.cpp](file:///d:/WorkSpace/Game/OU/src/Server/main.cpp)) chịu trách nhiệm lắng nghe kết nối, xử lý logic vật lý, quái vật NPC và đồng bộ hóa đa người chơi.
-    *   [src/main.cpp](file:///d:/WorkSpace/Game/OU/src/main.cpp): Điểm khởi chạy của Game Client.
-*   [android-project/](file:///d:/WorkSpace/Game/OU/android-project): Cấu hình dự án Android (Gradle, JNI, Manifest) phục vụ đóng gói APK.
-*   [assets/](file:///d:/WorkSpace/Game/OU/assets): Tài nguyên hình ảnh (textures), font chữ (ttf), bản đồ dạng XML.
+*   **Language**: C++20 (Smart pointers, STL features, constexpr constructs)
+*   **Build System**: CMake (>= 3.22) with `FetchContent` configuration for zero-setup builds
+*   **Graphics Library**: SDL3 (v3.2.0)
+*   **UI & Fonts**: SDL3_ttf & SDL3_image
+*   **Networking**: SDL3_net (Non-blocking TCP socket implementation)
+*   **XML Parser**: tinyxml2
+*   **Target Platforms**: Windows, Linux, macOS, Android
+
+</details>
 
 ---
 
-## 🚀 Hướng Dẫn Biên Dịch & Chạy (Build Guide)
+## 💻 Hướng Dẫn Cài Đặt & Biên Dịch (Build Guide)
 
 ### Yêu Cầu Hệ Thống (Prerequisites)
-*   **CMake**: Phiên bản 3.22 trở lên.
-*   **C++ Compiler**: Trình biên dịch hỗ trợ chuẩn C++20 (MSVC trên Windows, GCC hoặc Clang trên Linux/macOS).
-*   **ZLIB**: Thư viện nén cần thiết được cài trên hệ thống (đối với Windows có thể tải qua vcpkg hoặc đi kèm SDK).
+*   Cài đặt CMake phiên bản 3.22 trở lên.
+*   Trình biên dịch C++20 (MSVC trên Windows, GCC hoặc Clang trên Linux/macOS).
+*   Thư viện `ZLIB` đã được cấu hình trên hệ thống.
 
-### Các bước biên dịch trên PC (Windows / Linux / macOS)
-
+### Biên dịch trên PC (Windows / Linux / macOS)
 1.  Tạo thư mục build và cấu hình dự án bằng CMake:
     ```bash
     mkdir build
     cd build
     cmake ..
     ```
-    *(CMake sẽ tự động tải các gói thư viện SDL3, SDL3_image, SDL3_ttf, SDL3_net và tinyxml2 từ GitHub)*
-
+    *(Hệ thống sẽ tự động fetch SDL3, SDL3_image, SDL3_ttf, SDL3_net và tinyxml2 từ GitHub)*
 2.  Biên dịch dự án:
     ```bash
     cmake --build . --config Release
     ```
-
-3.  Sau khi biên dịch thành công, các file thực thi và tài nguyên DLL sẽ được copy vào thư mục output:
+3.  Chạy ứng dụng:
     *   Chạy Server: `./bin/OUGameServer` (hoặc `OUGameServer.exe`)
     *   Chạy Client: `./bin/OUGameClient` (hoặc `OUGameClient.exe`)
 
-### Biên dịch cho Android
+---
 
-Dự án tích hợp sẵn thư mục `android-project`. Bạn có thể mở dự án này bằng **Android Studio**, cấu hình Android NDK để biên dịch tệp thư viện chia sẻ `libmain.so` thông qua CMake của Android và chạy trực tiếp trên thiết bị/máy ảo Android.
+<details>
+<summary>🇬🇧 Click to view English Version</summary>
+
+## 💻 Build Guide
+
+### Prerequisites
+*   CMake 3.22 or higher installed.
+*   C++20 compliant compiler (MSVC, GCC, or Clang).
+*   `ZLIB` configured on your system.
+
+### Build Steps (PC)
+1.  Generate build files via CMake:
+    ```bash
+    mkdir build
+    cd build
+    cmake ..
+    ```
+    *(Dependencies like SDL3, SDL3_image, SDL3_ttf, SDL3_net, and tinyxml2 will be fetched automatically)*
+2.  Compile the target:
+    ```bash
+    cmake --build . --config Release
+    ```
+3.  Launch binaries:
+    *   Launch Server: `./bin/OUGameServer` (or `OUGameServer.exe`)
+    *   Launch Client: `./bin/OUGameClient` (or `OUGameClient.exe`)
+
+</details>
 
 ---
 
-## 💡 Tư Duy Thiết Kế & Best Practices áp dụng
+## 💡 Tư Duy Thiết Kế & Best Practices (Design & Best Practices)
 
-1.  **Memory Safety & RAII**: Hạn chế tối đa sử dụng con trỏ thô (`raw pointers`). Tận dụng triệt để `std::unique_ptr` và `std::shared_ptr` để tự động hóa vòng đời đối tượng, phòng tránh rò rỉ bộ nhớ (Memory Leak) và lỗi giải phóng hai lần (Double Free).
-2.  **Clean Code & SOLID**: Các hệ thống được phân rã thành các module chức năng riêng biệt. `Game` đóng vai trò quản lý tổng thế, `AssetManager` lo việc nạp và giải phóng hình ảnh/font chữ, `Map` lo việc render lưới ô bản đồ, `ECS` quản lý logic nhân vật.
-3.  **Performance Optimization**: Hệ thống ECS cho phép truy cập bộ nhớ tuyến tính tuần tự (Data-Oriented Design) giúp tối ưu bộ đệm CPU (CPU Cache Hits).
-4.  **Network Synchronization**: Sử dụng socket không chặn (Non-blocking TCP sockets) của `SDL3_net` để xử lý nhiều gói tin mạng đồng thời mà không làm gián đoạn (freeze) vòng lặp render đồ họa ở client.
+1.  **RAII & Memory Safety**: Tránh sử dụng con trỏ thô (`raw pointers`). Toàn bộ tài nguyên đồ họa và font chữ được bọc trong các lớp quản lý dùng con trỏ thông minh giúp tự động giải phóng bộ nhớ khi ra khỏi phạm vi sử dụng.
+2.  **Data-Oriented Design**: Thiết kế ECS giúp phân chia các đối tượng thành các mảng bộ nhớ tuần tự (Contiguous memory allocations), tăng hiệu quả sử dụng bộ đệm CPU (CPU Cache locality) khi lặp qua hàng loạt Entity.
+3.  **Non-blocking Network**: Xử lý logic mạng của Server chạy trên Socket phi chặn (Non-blocking), đảm bảo không xảy ra hiện tượng đứng màn hình ở Client khi mất kết nối đột ngột.
+
+---
+
+<details>
+<summary>🇬🇧 Click to view English Version</summary>
+
+## 💡 Design & Best Practices
+
+1.  **RAII & Smart Memory**: Raw pointers are replaced with custom resource controls wrapped inside smart pointers, avoiding memory leaks and double-free exceptions.
+2.  **Data-Oriented ECS**: Structuring components in contiguous memory arrays optimizes sequential updates, increasing CPU cache hit ratios significantly.
+3.  **Non-blocking Sockets**: Non-blocking TCP sockets handle packets asynchronously without pausing the main graphics and update thread.
+
+</details>
+
+---
+
+## 🗺️ Kế Hoạch Phát Triển (Roadmap)
+*   [ ] Tối ưu hóa thuật toán tìm đường A* đa luồng cho quái vật NPC.
+*   [ ] Chuyển đổi giao thức đồng bộ di chuyển sang UDP/ENet để tối ưu hóa băng thông.
+*   [ ] Tích hợp hệ thống âm thanh (SDL3_mixer).
+```
