@@ -84,3 +84,6 @@ ipch/
 # Graphic & Design tools
 *.psd
 *.tiled-session
+
+# Documentation
+docs/
