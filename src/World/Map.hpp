@@ -49,6 +49,8 @@ private:
     int width = 0;       // Chiều rộng bản đồ (số cột gạch)
     int height = 0;      // Chiều cao bản đồ (số hàng gạch)
     std::vector<std::vector<std::vector<TileType>>> typeGrid3D; // Lưới va chạm 3D để debug
+    std::vector<std::vector<std::vector<float>>> heightGrid3D;  // Lưới độ cao Z (pixel) 3D cho nội suy isometric
+    std::vector<std::vector<std::vector<TileType>>> rampGrid3D; // Lưới ramp 3D (không bị ghi đè bởi non-ramp)
     
     std::vector<TilesetInfo> tilesets; // Danh sách các tileset động được nạp
 };
